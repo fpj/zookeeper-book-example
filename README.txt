@@ -102,3 +102,5 @@ gcc -I/Users/fpj/code/workspace/zookeeper-trunk/src/c/include -I/Users/fpj/code/
 ### Run it
 
 ./a.out 127.0.0.1:2181
+
+Have fun!
