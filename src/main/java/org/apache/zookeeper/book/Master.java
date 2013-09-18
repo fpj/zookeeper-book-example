@@ -130,7 +130,7 @@ public class Master implements Watcher, Closeable {
      * @throws IOException
      */
     void startZK() throws IOException {
-        zk = new ZooKeeper(hostPort, 10000, this);
+        zk = new ZooKeeper(hostPort, 15000, this);
     }
 
     /**
