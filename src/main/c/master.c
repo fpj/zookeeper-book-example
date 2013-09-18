@@ -784,7 +784,7 @@ int init (char * hostPort) {
     
     zh = zookeeper_init(hostPort,
                         main_watcher,
-                        10000,
+                        15000,
                         0,
                         0,
                         0);
