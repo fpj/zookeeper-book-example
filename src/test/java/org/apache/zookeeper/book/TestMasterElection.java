@@ -123,5 +123,33 @@ public class TestMasterElection extends BaseTestCase {
         m.close();
     }
     
+    @Test(timeout=50000)
+    public void testMasterExists() 
+    throws Exception {
+        Master m = new Master("localhost:" + port);
+
+        m.startZK();
+        
+        while(!m.isConnected()){
+            Thread.sleep(500);
+        }
+        
+        m.bootstrap();
+        m.masterExists();
+        
+        int attempts = 10;
+        boolean elected = true;
+        while((m.getState() == MasterStates.RUNNING)){
+            Thread.sleep(200);
+            if(attempts-- == 0) {
+                LOG.info("Breaking...");
+                elected = false;
+                break;
+            }
+        }
+        
+        Assert.assertTrue("Master not elected.", elected);
+        m.close();
+    }
     
 }
