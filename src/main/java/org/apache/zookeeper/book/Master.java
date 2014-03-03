@@ -301,6 +301,7 @@ public class Master implements Watcher, Closeable {
                 
                 break;
             case OK:
+            case NONODE:    
                 if(stat == null){
                     state = MasterStates.RUNNING;
                     runForMaster();
