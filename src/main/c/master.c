@@ -653,11 +653,10 @@ void master_exists_completion (int rc, const struct Stat *stat, const void *data
             break;
             
         case ZOK:
+            break;
         case ZNONODE:
-            if(stat == NULL) {
-                LOG_INFO(LOGCALLBACK(zh), "Previous master is gone, running for master");
-                run_for_master();
-            }
+            LOG_INFO(LOGCALLBACK(zh), "Previous master is gone, running for master");
+            run_for_master();
             
             break;
             
