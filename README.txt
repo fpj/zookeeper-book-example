@@ -1,4 +1,4 @@
-Apache ZooKeeper - O'Reilly Book Example
+# Apache ZooKeeper - O'Reilly Book Example
 
 This is some code example we have developed for the Apache ZooKeeper book. 
 This code constitutes complementary material to the book and it has been 
@@ -9,7 +9,7 @@ extend this implementation, it probably means that you have learned how
 to program with ZooKeeper!
 
 
-==== Components ====
+## Components
 
 This example implements a simple master-worker system. There is a primary
 master assigning tasks and it supports backup masters to replace the primary
@@ -20,8 +20,7 @@ submit tasks and wait for a status znode.
 
 Here is a summary of the code flow for each of the components:
 
-Master:
-
+### Master:
 
   1. Before taking leadership 
     1. Try to create the master znode
@@ -46,7 +45,7 @@ Master:
       3. Assign to worker
       4. Delete task from the list of unassigned
 
-Worker:
+### Worker:
 
 
   1. Creates /assign/worker-xxx znode
@@ -59,7 +58,7 @@ Worker:
   8. Delete assignment
 
 
-Client
+### Client
 
 
   1. Create task
@@ -68,7 +67,7 @@ Client
   4. Delete status znode 
 
 
-==== Compile and run it ====
+## Compile and run it
 
 We used maven for this little project. Install maven if you don't have it
 and run "mvn install" to generate the jar file and to run tests. We have a
@@ -77,28 +76,31 @@ to compile the ZooKeeper C client to use the client library.
 
 To run it, follow these steps:
 
-### Step 1: Start ZooKeeper by running "bin/zkServer.sh start" from a copy 
+### Step 1: Start ZooKeeper by running `bin/zkServer.sh start` from a copy 
 of the distribution package.
 
 ### Step 2: Start the master
-
+```
 java -cp .:/usr/local/zookeeper-3.4.5/zookeeper-3.4.5.jar:/usr/local/slf4j-1.7.2/slf4j-api-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-ext-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-log4j12-1.7.2.jar:/usr/local/apache-log4j-1.2.17/log4j-1.2.17.jar:/Users/fpj/code/workspace/book-examples/target/ZooKeeper-Book-0.0.1-SNAPSHOT.jar org.apache.zookeeper.book.Master localhost:2181
+```
 
 ### Step 3: Start a couple of workers
-
+```
 java -cp .:/usr/local/zookeeper-3.4.5/zookeeper-3.4.5.jar:/usr/local/slf4j-1.7.2/slf4j-api-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-ext-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-log4j12-1.7.2.jar:/usr/local/apache-log4j-1.2.17/log4j-1.2.17.jar:/Users/fpj/code/workspace/book-examples/target/ZooKeeper-Book-0.0.1-SNAPSHOT.jar org.apache.zookeeper.book.Worker localhost:2181
+```
 
 ### Step 4: Run a client
-
+```
 java -cp .:/usr/local/zookeeper-3.4.5/zookeeper-3.4.5.jar:/usr/local/slf4j-1.7.2/slf4j-api-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-ext-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-log4j12-1.7.2.jar:/usr/local/apache-log4j-1.2.17/log4j-1.2.17.jar:/Users/fpj/code/workspace/book-examples/target/ZooKeeper-Book-0.0.1-SNAPSHOT.jar org.apache.zookeeper.book.Client localhost:2181
-
+```
 
 For the C master, we do the following:
 
 ### Compile
 
+```
 gcc -I/Users/fpj/code/workspace/zookeeper-trunk/src/c/include -I/Users/fpj/code/workspace/zookeeper-trunk/src/c/generated -DTHREADED -L/usr/local/lib -l zookeeper_mt master.c
-
+```
 ### Run it
 
 ./a.out 127.0.0.1:2181
