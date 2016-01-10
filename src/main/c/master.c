@@ -121,6 +121,17 @@ void free_task_info(struct task_info* task) {
  * Functions to deal with workers and tasks caches
  */
 
+int contains(const char * child, const struct String_vector* children) {
+  int i;
+  for(i = 0; i < children->count; i++) {
+    if(!strcmp(child, children->data[i])) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
 /*
  * This function returns the elements that are new in current
  * compared to previous and update previous.
@@ -186,26 +197,14 @@ struct String_vector* removed_and_set(const struct String_vector* current,
             strcpy(diff->data[count++], (* previous)->data[i]);
         }
     }
-    
+
     assert(prev_count == count);
-    
+
     free_vector((struct String_vector*) *previous);
     (*previous) = make_copy(current);
     
     return diff;
 }
-
-int contains(const char * child, struct String_vector* children) {
-    int i;
-    for(i = 0; i < children->count; i++) {
-        if(!strcmp(child, children->data[i])) {
-            return 1;
-        }
-    }
-    
-    return 0;
-}
-
 
 /*
  * End of auxiliary functions, it is all related to zookeeper
@@ -711,7 +710,7 @@ void run_for_master() {
     zoo_acreate(zh,
                 "/master",
                 (const char *) server_id_string,
-                sizeof(int),
+                strlen(server_id_string) + 1,
                 &ZOO_OPEN_ACL_UNSAFE,
                 ZOO_EPHEMERAL,
                 master_create_completion,
@@ -792,7 +791,7 @@ int init (char * hostPort) {
     return errno;
 }
 
-void main (int argc, char * argv[]) {
+int main (int argc, char * argv[]) {
     LOG_DEBUG(LOGCALLBACK(zh), "THREADED defined");
     if (argc != 2) {
         fprintf(stderr, "USAGE: %s host:port\n", argv[0]);
@@ -902,5 +901,6 @@ void main (int argc, char * argv[]) {
     }
 #endif
     
+    return 0; 
 }
 
