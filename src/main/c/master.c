@@ -705,8 +705,8 @@ void run_for_master() {
         return;
     }
     
-    char server_id_string[11];
-    snprintf(server_id_string, 11, "%x", server_id);
+    char server_id_string[9];
+    snprintf(server_id_string, 9, "%x", server_id);
     zoo_acreate(zh,
                 "/master",
                 (const char *) server_id_string,
