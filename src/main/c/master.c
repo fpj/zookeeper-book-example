@@ -36,15 +36,13 @@ char * make_path(int num, ...) {
     for ( x = 0; x < num; x++ ) {
         tmp_string = va_arg ( arguments, const char * );
         if(tmp_string != NULL) {
-            LOG_DEBUG(LOGCALLBACK(zh),
-                      "Counting path with this path %s (%d)",
-                      tmp_string, num);
+            LOG_DEBUG(("Counting path with this path %s (%d)", tmp_string, num));
             total_length += strlen(tmp_string);
         }
     }
-    
+
     va_end ( arguments );
-    
+
     char * path = malloc(total_length * sizeof(char) + 1);
     path[0] = '\0';
     va_start ( arguments, num );
@@ -52,13 +50,12 @@ char * make_path(int num, ...) {
     for ( x = 0; x < num; x++ ) {
         tmp_string = va_arg ( arguments, const char * );
         if(tmp_string != NULL) {
-            LOG_DEBUG(LOGCALLBACK(zh),
-                      "Counting path with this path %s",
-                      tmp_string);
+            LOG_DEBUG(("Counting path with this path %s",
+                       tmp_string));
             strcat(path, tmp_string);
         }
     }
-    
+
     return path;
 }
 
@@ -230,19 +227,20 @@ void main_watcher (zhandle_t *zkh,
     if (type == ZOO_SESSION_EVENT) {
         if (state == ZOO_CONNECTED_STATE) {
             connected = 1;
-            
-            LOG_DEBUG(LOGCALLBACK(zh), "Received a connected event.");
-        } else if (state == ZOO_NOTCONNECTED_STATE ) {
+
+            LOG_DEBUG(("Received a connected event."));
+        } else if (state == ZOO_CONNECTING_STATE) {
+            if(connected == 1) {
+                LOG_WARN(("Disconnected."));
+            }
             connected = 0;
-            
-            LOG_WARN(LOGCALLBACK(zh), "Received a disconnected event.");
         } else if (state == ZOO_EXPIRED_SESSION_STATE) {
             expired = 1;
             connected = 0;
             zookeeper_close(zkh);
         }
     }
-    LOG_DEBUG(LOGCALLBACK(zh), "Event: ", type2string(type), state);
+    LOG_DEBUG(("Event: %s, %d", type2string(type), state));
 }
 
 int is_connected() {
@@ -264,12 +262,11 @@ void assign_tasks(const struct String_vector *strings) {
     /*
      * For each task, assign it to a worker.
      */
-    LOG_DEBUG(LOGCALLBACK(zh), "Task count: %d", strings->count);
+    LOG_DEBUG(("Task count: %d", strings->count));
     int i;
     for( i = 0; i < strings->count; i++) {
-        LOG_DEBUG(LOGCALLBACK(zh),
-                  "Assigning task %s",
-                  (char *) strings->data[i]);
+        LOG_DEBUG(("Assigning task %s",
+                   (char *) strings->data[i]));
         get_task_data( strings->data[i] );
     }
 }
@@ -292,16 +289,16 @@ void tasks_completion (int rc,
             break;
             
         case ZOK:
-            LOG_DEBUG(LOGCALLBACK(zh), "Assigning tasks");
-            
+            LOG_DEBUG(("Assigning tasks"));
+
             struct String_vector *tmp_tasks = added_and_set(strings, &tasks);
             assign_tasks(tmp_tasks);
             free_vector(tmp_tasks);
-            
+
             break;
         default:
-            LOG_ERROR(LOGCALLBACK(zh), "Something went wrong when checking tasks: %s", rc2string(rc));
-            
+            LOG_ERROR(("Something went wrong when checking tasks: %s", rc2string(rc)));
+
             break;
     }
 }
@@ -317,15 +314,14 @@ void tasks_watcher (zhandle_t *zh,
                     int state,
                     const char *path,
                     void *watcherCtx) {
-    LOG_DEBUG(LOGCALLBACK(zh), "Tasks watcher triggered %s %d", path, state);
+    LOG_DEBUG(("Tasks watcher triggered %s %d", path, state));
     if( type == ZOO_CHILD_EVENT) {
         assert( !strcmp(path, "/tasks") );
-        
         get_tasks();
     } else {
-        LOG_INFO(LOGCALLBACK(zh), "Watched event: ", type2string(type));
+        LOG_INFO(("Watched event: ", type2string(type)));
     }
-    LOG_DEBUG(LOGCALLBACK(zh), "Tasks watcher done");
+    LOG_DEBUG(("Tasks watcher done"));
 }
 
 static int task_count = 0;
@@ -336,7 +332,7 @@ static int task_count = 0;
  *
  */
 void get_tasks () {
-    LOG_DEBUG(LOGCALLBACK(zh), "Getting tasks");
+  LOG_DEBUG(("Getting tasks"));
     zoo_awget_children(zh,
                        "/tasks",
                        tasks_watcher,
@@ -358,17 +354,15 @@ void delete_task_completion(int rc, const void *data) {
             delete_pending_task((const char *) data);
             
             break;
-            
         case ZOK:
-            LOG_DEBUG(LOGCALLBACK(zh), "Deleted task: %s", (char *) data);
+            LOG_DEBUG(("Deleted task: %s", (char *) data));
             free((char *) data);
+            
             break;
-            
         default:
-            LOG_ERROR(LOGCALLBACK(zh),
-                      "Something went wrong when deleting task: %s",
-                      rc2string(rc));
-            
+            LOG_ERROR(("Something went wrong when deleting task: %s",
+                       rc2string(rc)));
+
             break;
     }
 }
@@ -400,26 +394,23 @@ void workers_completion (int rc,
             get_workers();
             
             break;
-            
         case ZOK:
             if(strings->count == 1) {
-                LOG_DEBUG(LOGCALLBACK(zh), "Got %d worker", strings->count);
+                LOG_DEBUG(("Got %d worker", strings->count));
             } else {
-                LOG_DEBUG(LOGCALLBACK(zh), "Got %d workers", strings->count);
+                LOG_DEBUG(("Got %d workers", strings->count));
             }
-            
+
             struct String_vector *tmp_workers = removed_and_set(strings, &workers);
             free_vector(tmp_workers);
             get_tasks();
-            
+
             break;
-            
         default:
-            LOG_ERROR(LOGCALLBACK(zh), "Something went wrong when checking workers: %s", rc2string(rc));
+            LOG_ERROR(("Something went wrong when checking workers: %s", rc2string(rc)));
             
             break;
     }
-    
 }
 
 void workers_watcher (zhandle_t *zh, int type, int state, const char *path,void *watcherCtx) {
@@ -427,7 +418,7 @@ void workers_watcher (zhandle_t *zh, int type, int state, const char *path,void 
         assert( !strcmp(path, "/workers") );
         get_workers();
     } else {
-        LOG_DEBUG(LOGCALLBACK(zh), "Watched event: ", type2string(type));
+        LOG_DEBUG(("Watched event: ", type2string(type)));
     }
 }
 
@@ -458,29 +449,25 @@ void master_check_completion (int rc, const char *value, int value_len,
             check_master();
             
             break;
-            
         case ZOK:
             sscanf(value, "%x", &master_id );
             if(master_id == server_id) {
                 take_leadership();
-                LOG_DEBUG(LOGCALLBACK(zh), "Elected primary master");
+                LOG_DEBUG(("Elected primary master"));
             } else {
                 master_exists();
-                LOG_DEBUG(LOGCALLBACK(zh), "The primary is some other process");
+                LOG_DEBUG(("The primary is some other process"));
             }
             
             break;
-            
         case ZNONODE:
             run_for_master();
             
             break;
-            
         default:
-            LOG_ERROR(LOGCALLBACK(zh), "Something went wrong when checking the master lock: %s", rc2string(rc));
+	  LOG_ERROR(("Something went wrong when checking the master lock: %s", rc2string(rc)));
             
             break;
-            
     }
 }
 
@@ -499,15 +486,13 @@ void task_assignment_completion (int rc, const char *value, const void *data) {
             task_assignment((struct task_info*) data);
             
             break;
-            
         case ZOK:
             if(data != NULL) {
                 /*
                  * Delete task from list of pending
                  */
-                LOG_DEBUG(LOGCALLBACK(zh),
-                          "Deleting pending task %s",
-                          ((struct task_info*) data)->name);
+                LOG_DEBUG(("Deleting pending task %s",
+                           ((struct task_info*) data)->name));
                 char * del_path = "";
                 del_path = make_path(2, "/tasks/", ((struct task_info*) data)->name);
                 if(del_path != NULL) {
@@ -516,18 +501,15 @@ void task_assignment_completion (int rc, const char *value, const void *data) {
                 free(del_path);
                 free_task_info((struct task_info*) data);
             }
-            
+
             break;
-            
         case ZNODEEXISTS:
-            LOG_DEBUG(LOGCALLBACK(zh), "Assignment has alreasy been created: %s", value);
-            
+            LOG_DEBUG(("Assignment has already been created: %s", value));
+
             break;
-            
         default:
-            
-            LOG_ERROR(LOGCALLBACK(zh), "Something went wrong when checking the master lock: %s", rc2string(rc));
-            
+            LOG_ERROR(("Something went wrong when checking the master lock: %s", rc2string(rc)));
+
             break;
     }
 }
@@ -558,15 +540,14 @@ void get_task_data_completion(int rc, const char *value, int value_len,
             break;
             
         case ZOK:
-            LOG_DEBUG(LOGCALLBACK(zh), "Choosing worker for task %s", (const char *) data);
+            LOG_DEBUG(("Choosing worker for task %s", (const char *) data));
             if(workers != NULL) {
                 /*
                  * Choose worker
                  */
                 worker_index = (rand() % workers->count);
-                LOG_DEBUG(LOGCALLBACK(zh),
-                          "Chosen worker %d %d",
-                          worker_index, workers->count);
+                LOG_DEBUG(("Chosen worker %d %d",
+                           worker_index, workers->count));
             
                 /*
                  * Assign task to worker
@@ -581,37 +562,30 @@ void get_task_data_completion(int rc, const char *value, int value_len,
                 const char * worker_string = workers->data[worker_index];
                 new_task->worker = strdup(worker_string);
             
-                LOG_DEBUG(LOGCALLBACK(zh),
-                         "Ready to assign it %d, %s",
-                         worker_index,
-                         workers->data[worker_index]);
-            
+                LOG_DEBUG(("Ready to assign it %d, %s",
+                           worker_index,
+                           workers->data[worker_index]));
                 task_assignment(new_task);
             }
-            
+
             break;
-            
         default:
-            LOG_ERROR(LOGCALLBACK(zh),
-                      "Something went wrong when checking the master lock: %s",
-                      rc2string(rc));
+            LOG_ERROR(("Something went wrong when checking the master lock: %s",
+                       rc2string(rc)));
             
             break;
-            
     }
 }
 
 void get_task_data(const char *task) {
     if(task == NULL) return;
     
-    LOG_DEBUG(LOGCALLBACK(zh),
-             "Task path: %s",
-             task);
+    LOG_DEBUG(("Task path: %s",
+               task));
     char * tmp_task = strndup(task, 15);
     char * path = make_path(2, "/tasks/", tmp_task);
-    LOG_DEBUG(LOGCALLBACK(zh),
-              "Getting task data %s",
-              tmp_task);
+    LOG_DEBUG(("Getting task data %s",
+               tmp_task));
     
     zoo_aget(zh,
              path,
@@ -639,7 +613,7 @@ void master_exists_watcher (zhandle_t *zh,
         assert( !strcmp(path, "/master") );
         run_for_master();
     } else {
-        LOG_DEBUG(LOGCALLBACK(zh), "Watched event: ", type2string(type));
+        LOG_DEBUG(("Watched event: ", type2string(type)));
     }
 }
 
@@ -654,14 +628,13 @@ void master_exists_completion (int rc, const struct Stat *stat, const void *data
         case ZOK:
             break;
         case ZNONODE:
-            LOG_INFO(LOGCALLBACK(zh), "Previous master is gone, running for master");
+            LOG_INFO(("Previous master is gone, running for master"));
             run_for_master();
-            
+
             break;
-            
         default:
-            LOG_WARN(LOGCALLBACK(zh), "Something went wrong when executing exists: ", rc2string(rc));
-            
+            LOG_WARN(("Something went wrong when executing exists: ", rc2string(rc)));
+
             break;
     }
 }
@@ -693,15 +666,16 @@ void master_create_completion (int rc, const char *value, const void *data) {
             break;
             
         default:
-            LOG_ERROR(LOGCALLBACK(zh), "Something went wrong when running for master.");
-            
+            LOG_ERROR(("Something went wrong when running for master."));
+
             break;
     }
 }
 
 void run_for_master() {
     if(!connected) {
-        LOG_WARN(LOGCALLBACK(zh), "Client not connected to ZooKeeper");
+        LOG_WARN(("Client not connected to ZooKeeper"));
+
         return;
     }
     
@@ -727,19 +701,16 @@ void create_parent_completion (int rc, const char * value, const void * data) {
             create_parent(value, (const char *) data);
             
             break;
-            
         case ZOK:
-            LOG_INFO(LOGCALLBACK(zh), "Created parent node", value);
-            
+            LOG_INFO(("Created parent node", value));
+
             break;
-            
         case ZNODEEXISTS:
-            LOG_WARN(LOGCALLBACK(zh), "Node already exists");
+            LOG_WARN(("Node already exists"));
             
             break;
-            
         default:
-            LOG_ERROR(LOGCALLBACK(zh), "Something went wrong when running for master");
+            LOG_ERROR(("Something went wrong when running for master"));
             
             break;
     }
@@ -759,7 +730,7 @@ void create_parent(const char * path, const char * value) {
 
 void bootstrap() {
     if(!connected) {
-        LOG_WARN(LOGCALLBACK(zh), "Client not connected to ZooKeeper");
+      LOG_WARN(("Client not connected to ZooKeeper"));
         return;
     }
     
@@ -779,7 +750,7 @@ int init (char * hostPort) {
     srand(time(NULL));
     server_id  = rand();
     
-    zoo_set_debug_level(ZOO_LOG_LEVEL_INFO);
+    zoo_set_debug_level(ZOO_LOG_LEVEL_DEBUG);
     
     zh = zookeeper_init(hostPort,
                         main_watcher,
@@ -792,7 +763,7 @@ int init (char * hostPort) {
 }
 
 int main (int argc, char * argv[]) {
-    LOG_DEBUG(LOGCALLBACK(zh), "THREADED defined");
+    LOG_DEBUG(("THREADED defined"));
     if (argc != 2) {
         fprintf(stderr, "USAGE: %s host:port\n", argv[0]);
         exit(1);
@@ -802,7 +773,7 @@ int main (int argc, char * argv[]) {
      * Initialize ZooKeeper session
      */
     if(init(argv[1])){
-        LOG_ERROR(LOGCALLBACK(zh), "Error while initializing the master: ", errno);
+        LOG_ERROR(("Error while initializing the master: ", errno));
     }
     
 #ifdef THREADED
@@ -813,7 +784,7 @@ int main (int argc, char * argv[]) {
         sleep(1);
     }
     
-    LOG_DEBUG(LOGCALLBACK(zh), "Connected, going to bootstrap and run for master");
+    LOG_DEBUG(("Connected, going to bootstrap and run for master"));
     
     /*
      * Create parent znodes
@@ -871,7 +842,7 @@ int main (int argc, char * argv[]) {
          * is_connected is true.
          */
         if(is_connected() && !run) {
-            LOG_DEBUG(LOGCALLBACK(zh), "Connected, going to bootstrap and run for master");
+            LOG_DEBUG(("Connected, going to bootstrap and run for master"));
             
             /*
              * Create parent znodes

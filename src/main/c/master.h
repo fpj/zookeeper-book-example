@@ -29,8 +29,8 @@
 #include <unistd.h>
 
 #include <zookeeper.h>
+#include <zookeeper_log.h>
 #include <zookeeper.jute.h>
-#include "log.h"
 
 static const char *hostPort;
 static zhandle_t *zh;
@@ -181,18 +181,7 @@ static const char * rc2string(int rc){
     if (rc == ZSESSIONMOVED) {
         return "Session moved to a different server";
     }
-    
-    /*
-     * Return codes related to reconfiguration.
-     * Available only from version 3.5.0.
-     */
-    if (rc == ZNEWCONFIGNOQUORUM) {
-        return "Missing new configuration quorum";
-    }
-    if (rc == ZRECONFIGINPROGRESS) {
-        return "Reconfiguration in progress";
-    }
-    
+
     return "UNKNOWN_EVENT_TYPE";
 }
 
