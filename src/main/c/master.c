@@ -319,7 +319,7 @@ void tasks_watcher (zhandle_t *zh,
         assert( !strcmp(path, "/tasks") );
         get_tasks();
     } else {
-        LOG_INFO(("Watched event: ", type2string(type)));
+        LOG_INFO(("Watched event: %s", type2string(type)));
     }
     LOG_DEBUG(("Tasks watcher done"));
 }
@@ -465,7 +465,7 @@ void master_check_completion (int rc, const char *value, int value_len,
             
             break;
         default:
-	  LOG_ERROR(("Something went wrong when checking the master lock: %s", rc2string(rc)));
+	    LOG_ERROR(("Something went wrong when checking the master lock: %s", rc2string(rc)));
             
             break;
     }
@@ -508,7 +508,7 @@ void task_assignment_completion (int rc, const char *value, const void *data) {
 
             break;
         default:
-            LOG_ERROR(("Something went wrong when checking the master lock: %s", rc2string(rc)));
+            LOG_ERROR(("Something went wrong when checking assignment completion: %s", rc2string(rc)));
 
             break;
     }
@@ -633,7 +633,7 @@ void master_exists_completion (int rc, const struct Stat *stat, const void *data
 
             break;
         default:
-            LOG_WARN(("Something went wrong when executing exists: ", rc2string(rc)));
+            LOG_WARN(("Something went wrong when executing exists: %s", rc2string(rc)));
 
             break;
     }
@@ -710,7 +710,7 @@ void create_parent_completion (int rc, const char * value, const void * data) {
             
             break;
         default:
-            LOG_ERROR(("Something went wrong when running for master"));
+	  LOG_ERROR(("Something went wrong when running for master: %s, %s", value, rc2string(rc)));
             
             break;
     }
