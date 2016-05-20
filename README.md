@@ -81,17 +81,17 @@ of the distribution package.
 
 ### Step 2: Start the master
 ```
-java -cp .:/usr/local/zookeeper-3.4.5/zookeeper-3.4.5.jar:/usr/local/slf4j-1.7.2/slf4j-api-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-ext-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-log4j12-1.7.2.jar:/usr/local/apache-log4j-1.2.17/log4j-1.2.17.jar:/Users/fpj/code/workspace/book-examples/target/ZooKeeper-Book-0.0.1-SNAPSHOT.jar org.apache.zookeeper.book.Master localhost:2181
+java -cp .:/usr/local/zookeeper-3.4.8/zookeeper-3.4.8.jar:/usr/local/slf4j-1.7.2/slf4j-api-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-ext-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-log4j12-1.7.2.jar:/usr/local/apache-log4j-1.2.17/log4j-1.2.17.jar:/path/to/book/repo/target/ZooKeeper-Book-0.0.1-SNAPSHOT.jar org.apache.zookeeper.book.Master localhost:2181
 ```
 
 ### Step 3: Start a couple of workers
 ```
-java -cp .:/usr/local/zookeeper-3.4.5/zookeeper-3.4.5.jar:/usr/local/slf4j-1.7.2/slf4j-api-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-ext-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-log4j12-1.7.2.jar:/usr/local/apache-log4j-1.2.17/log4j-1.2.17.jar:/Users/fpj/code/workspace/book-examples/target/ZooKeeper-Book-0.0.1-SNAPSHOT.jar org.apache.zookeeper.book.Worker localhost:2181
+java -cp .:/usr/local/zookeeper-3.4.8/zookeeper-3.4.8.jar:/usr/local/slf4j-1.7.2/slf4j-api-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-ext-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-log4j12-1.7.2.jar:/usr/local/apache-log4j-1.2.17/log4j-1.2.17.jar:/path/to/book/repo/target/ZooKeeper-Book-0.0.1-SNAPSHOT.jar org.apache.zookeeper.book.Worker localhost:2181
 ```
 
 ### Step 4: Run a client
 ```
-java -cp .:/usr/local/zookeeper-3.4.5/zookeeper-3.4.5.jar:/usr/local/slf4j-1.7.2/slf4j-api-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-ext-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-log4j12-1.7.2.jar:/usr/local/apache-log4j-1.2.17/log4j-1.2.17.jar:/Users/fpj/code/workspace/book-examples/target/ZooKeeper-Book-0.0.1-SNAPSHOT.jar org.apache.zookeeper.book.Client localhost:2181
+java -cp .:/usr/local/zookeeper-3.4.8/zookeeper-3.4.8.jar:/usr/local/slf4j-1.7.2/slf4j-api-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-ext-1.7.2.jar:/usr/local/slf4j-1.7.2/slf4j-log4j12-1.7.2.jar:/usr/local/apache-log4j-1.2.17/log4j-1.2.17.jar:/path/to/book/repo/target/ZooKeeper-Book-0.0.1-SNAPSHOT.jar org.apache.zookeeper.book.Client localhost:2181
 ```
 
 For the C master, we do the following:
@@ -99,7 +99,7 @@ For the C master, we do the following:
 ### Compile
 
 ```
-gcc -I/usr/local/zookeeper-3.4.5/src/c/include -I/usr/local/zookeeper-3.4.5/src/c/generated -DTHREADED -L/usr/local/lib -l zookeeper_mt master.c
+gcc -I/usr/local/zookeeper-3.4.8/src/c/include -I/usr/local/zookeeper-3.4.8/src/c/generated -DTHREADED -L/usr/local/lib -l zookeeper_mt master.c
 ```
 ### Run it
 
