@@ -99,7 +99,7 @@ For the C master, we do the following:
 ### Compile
 
 ```
-gcc -I/Users/fpj/code/workspace/zookeeper-trunk/src/c/include -I/Users/fpj/code/workspace/zookeeper-trunk/src/c/generated -DTHREADED -L/usr/local/lib -l zookeeper_mt master.c
+gcc -I/usr/local/zookeeper-3.4.5/src/c/include -I/usr/local/zookeeper-3.4.5/src/c/generated -DTHREADED -L/usr/local/lib -l zookeeper_mt master.c
 ```
 ### Run it
 
