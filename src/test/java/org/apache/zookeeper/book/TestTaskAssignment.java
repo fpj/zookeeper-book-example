@@ -21,8 +21,11 @@ package org.apache.zookeeper.book;
 
 import java.util.ArrayList;
 
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.book.Client.TaskObject;
 import org.apache.zookeeper.book.Master.MasterStates;
+import org.apache.zookeeper.KeeperException.Code;
 
 import org.junit.Test;
 import org.junit.Assert;
@@ -285,5 +288,57 @@ public class TestTaskAssignment extends BaseTestCase {
         w2.close();
         w3.close();
         c.close();
+    }
+
+    @Test(timeout=50000)
+    public void taskWorkerAssignmentCallback() throws Exception {
+        LOG.info("Starting master - Sequential");
+        Master m = new Master("localhost:" + port);
+        m.startZK();
+
+        while(!m.isConnected()){
+            Thread.sleep(500);
+        }
+
+        m.bootstrap();
+        m.runForMaster();
+
+        while(m.getState() == MasterStates.RUNNING){
+            Thread.sleep(100);
+        }
+
+        LOG.info("Starting worker");
+        Worker w = new Worker("localhost:" + port);
+        w.startZK();
+        while(!w.isConnected()){
+            Thread.sleep(100);
+        }
+
+        /*
+         * bootstrap() create some necessary znodes.
+         */
+        w.bootstrap();
+        /*
+         * Registers this worker so that the leader knows that
+         * it is here.
+         */
+        w.register();
+
+        LOG.info("Starting client");
+        Client c = new Client("localhost:" + port);
+        c.startZK();
+
+        while(!c.isConnected() &&
+                w.isConnected()){
+            Thread.sleep(100);
+        }
+
+        m.workerAssignmentCallback.processResult(Code.CONNECTIONLOSS.intValue(),
+                "/assign/" + w.name,
+                (Object) w.name,
+                null);
+
+        m.close();
+        w.close();
     }
 }

@@ -481,14 +481,15 @@ public class Master implements Watcher, Closeable {
     }
     
     void getAbsentWorkerTasks(String worker){
-        zk.getChildren("/assign/" + worker, false, workerAssignmentCallback, null);
+        zk.getChildren("/assign/" + worker, false, workerAssignmentCallback, worker);
     }
     
     ChildrenCallback workerAssignmentCallback = new ChildrenCallback() {
         public void processResult(int rc, String path, Object ctx, List<String> children){
-            switch (Code.get(rc)) { 
+            String worker = (String) ctx;
+            switch (Code.get(rc)) {
             case CONNECTIONLOSS:
-                getAbsentWorkerTasks(path);
+                getAbsentWorkerTasks(worker);
                 
                 break;
             case OK:
