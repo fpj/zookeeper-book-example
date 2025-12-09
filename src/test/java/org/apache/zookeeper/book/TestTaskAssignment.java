@@ -340,5 +340,6 @@ public class TestTaskAssignment extends BaseTestCase {
 
         m.close();
         w.close();
+        c.close();
     }
 }
