@@ -21,11 +21,8 @@ package org.apache.zookeeper.book;
 
 import java.util.ArrayList;
 
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.book.Client.TaskObject;
 import org.apache.zookeeper.book.Master.MasterStates;
-import org.apache.zookeeper.KeeperException.Code;
 
 import org.junit.Test;
 import org.junit.Assert;
