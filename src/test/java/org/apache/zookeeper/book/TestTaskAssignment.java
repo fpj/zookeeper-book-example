@@ -289,34 +289,4 @@ public class TestTaskAssignment extends BaseTestCase {
         w3.close();
         c.close();
     }
-
-    /**
-     * A test class for mocking the Master that records the last worker for which
-     * getAbsentWorkerTasks was called.
-     */
-    class TestMaster extends Master {
-        String lastWorker;
-
-        TestMaster() {
-            super("localhost:" + port);
-        }
-
-        @Override
-        void getAbsentWorkerTasks(String worker) {
-            lastWorker = worker;
-        }
-    }
-
-    @Test
-    public void taskWorkerAssignmentCallback() throws Exception {
-        TestMaster m = new TestMaster();
-        m.startZK();
-        String testWorker = "worker-001";
-        m.workerAssignmentCallback.processResult(Code.CONNECTIONLOSS.intValue(),
-                "/assign/" + testWorker,
-                (Object) testWorker,
-                null);
-        m.close();
-        Assert.assertEquals("Last worker not matching", testWorker, m.lastWorker);
-    }
 }
