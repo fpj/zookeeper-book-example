@@ -290,56 +290,33 @@ public class TestTaskAssignment extends BaseTestCase {
         c.close();
     }
 
-    @Test(timeout=50000)
+    /**
+     * A test class for mocking the Master that records the last worker for which
+     * getAbsentWorkerTasks was called.
+     */
+    class TestMaster extends Master {
+        String lastWorker;
+
+        TestMaster() {
+            super("localhost:" + port);
+        }
+
+        @Override
+        void getAbsentWorkerTasks(String worker) {
+            lastWorker = worker;
+        }
+    }
+
+    @Test
     public void taskWorkerAssignmentCallback() throws Exception {
-        LOG.info("Starting master - Sequential");
-        Master m = new Master("localhost:" + port);
+        TestMaster m = new TestMaster();
         m.startZK();
-
-        while(!m.isConnected()){
-            Thread.sleep(500);
-        }
-
-        m.bootstrap();
-        m.runForMaster();
-
-        while(m.getState() == MasterStates.RUNNING){
-            Thread.sleep(100);
-        }
-
-        LOG.info("Starting worker");
-        Worker w = new Worker("localhost:" + port);
-        w.startZK();
-        while(!w.isConnected()){
-            Thread.sleep(100);
-        }
-
-        /*
-         * bootstrap() create some necessary znodes.
-         */
-        w.bootstrap();
-        /*
-         * Registers this worker so that the leader knows that
-         * it is here.
-         */
-        w.register();
-
-        LOG.info("Starting client");
-        Client c = new Client("localhost:" + port);
-        c.startZK();
-
-        while(!c.isConnected() &&
-                w.isConnected()){
-            Thread.sleep(100);
-        }
-
+        String testWorker = "worker-001";
         m.workerAssignmentCallback.processResult(Code.CONNECTIONLOSS.intValue(),
-                "/assign/" + w.name,
-                (Object) w.name,
+                "/assign/" + testWorker,
+                (Object) testWorker,
                 null);
-
         m.close();
-        w.close();
-        c.close();
+        Assert.assertEquals("Last worker not matching", testWorker, m.lastWorker);
     }
 }
