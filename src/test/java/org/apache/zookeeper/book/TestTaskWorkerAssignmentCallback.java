@@ -26,13 +26,13 @@ public class TestTaskWorkerAssignmentCallback {
     @Test
     public void taskWorkerAssignmentCallback() throws Exception {
         TestMaster m = new TestMaster();
-        m.startZK();
+        
         String testWorker = "worker-001";
         m.workerAssignmentCallback.processResult(KeeperException.Code.CONNECTIONLOSS.intValue(),
                 "/assign/" + testWorker,
                 (Object) testWorker,
                 null);
-        m.close();
+
         Assert.assertEquals("Last worker not matching", testWorker, m.lastWorker);
     }
 }
