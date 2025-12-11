@@ -12,7 +12,7 @@ class TestMaster extends Master {
     String lastWorker;
 
     TestMaster() {
-        super("localhost:2181");
+        super("IgnoredForTest");
     }
 
     @Override
@@ -26,11 +26,11 @@ public class TestTaskWorkerAssignmentCallback {
     @Test
     public void taskWorkerAssignmentCallback() throws Exception {
         TestMaster m = new TestMaster();
-        
+
         String testWorker = "worker-001";
         m.workerAssignmentCallback.processResult(KeeperException.Code.CONNECTIONLOSS.intValue(),
                 "/assign/" + testWorker,
-                (Object) testWorker,
+                testWorker,
                 null);
 
         Assert.assertEquals("Last worker not matching", testWorker, m.lastWorker);
